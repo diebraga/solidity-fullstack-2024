@@ -8,6 +8,7 @@ const { ALCHEMY_API_URL_SEPOLIA, PRIVATE_KEY } = process.env;
 
 const config: HardhatUserConfig = {
   solidity: "0.8.9",
+  defaultNetwork: "hardhat",
   networks: {
     sepolia: {
       url: ALCHEMY_API_URL_SEPOLIA,

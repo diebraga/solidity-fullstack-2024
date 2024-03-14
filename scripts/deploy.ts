@@ -1,26 +1,22 @@
 import { ethers } from "hardhat";
+import fs from "fs";
+import { join } from "path";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  const contract = await ethers.deployContract("SimpleStorage");
 
-  const lockedAmount = ethers.parseEther("0.001");
+  await contract.waitForDeployment();
 
-  const lock = await ethers.deployContract("SimpleStorage", [unlockTime], {
-    value: lockedAmount,
-  });
+  const contractAddress = await contract.getAddress();
+  // log contract address
+  console.log(`contract deployed to ` + contractAddress);
 
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+  // Update constants.ts
+  const constantsPath = join(__dirname, "../constants.ts");
+  const content = `export const constants = {\n  latestContractAddress: "${contractAddress}",\n};\n`;
+  fs.writeFileSync(constantsPath, content, "utf8");
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
